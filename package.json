@@ -1,0 +1,27 @@
+{
+  "name": "music",
+  "version": "0.0.1",
+  "devDependencies": {
+    "async": "*",
+    "ejs": "*",
+    "express": "3.x",
+    "express.io": "*",
+    "express3-handlebars": "*",
+    "gulp": "^3.8.11",
+    "gulp-compass": "^2.0.4",
+    "gulp-less": "^3.0.3",
+    "handlebars": "*",
+    "less": "*",
+    "passport": "*",
+    "passport-local-mongoose": "*",
+    "session-mongoose": "*",
+    "socket.io": "*"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "minggang.qiu",
+  "license": "ISC",
+  "description": "A web app",
+  "main": "app.js"
+}
