@@ -1,0 +1,92 @@
+@arrow-left: 20%;
+
+@font-face {
+    font-family: Microsoft YaHei;
+    src: url('font/msyh/msyh.eot');
+    src: url('font/msyh/msyh.eot?#iefix') format('embedded-opentype'),
+    url('font/msyh/msyh.woff') format('woff'),
+    url('font/msyh/msyh.ttf')  format('truetype'),
+    url('font/msyh/msyh.svg#msyh') format('svg');
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Microsoft YaHei;
+    background: #f2f3f4;
+}
+
+ol, ul, li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+button {
+    font-family: Microsoft YaHei;
+    background: #fff;
+    border: 1px solid #f2f3f4;
+    color: #ccc;
+    cursor: pointer;
+    outline: none;
+    &:hover {
+        border-color: #ccc;
+        color: #333;
+    }
+}
+
+.none {
+    display: none;
+}
+
+.dialog {
+    position: absolute;
+    z-index: 1;
+    border: 2px solid #ddd;
+    padding: 8px;
+    background: #fff;
+
+    .arrow-border {
+        border-style: solid;
+        border-width: 20px;
+        height: 0;
+        width: 0;
+        position: absolute;
+    }
+
+    .arrow {
+        border-style: solid;
+        border-width: 20px;
+        height: 0;
+        width: 0;
+        position: absolute;
+    }
+
+    &.right {
+        .arrow-border {
+            border-color: transparent #ddd transparent transparent;
+            top: @arrow-left;
+            left: -40px;
+        }
+
+        .arrow {
+            border-color: transparent #fff transparent transparent;
+            top: @arrow-left;
+            left: -37px;
+        }
+    }
+
+    &.top {
+        .arrow-border {
+            border-color: #ddd transparent transparent transparent;
+            bottom: -40px;
+            left: @arrow-left;
+        }
+
+        .arrow {
+            border-color: #fff transparent transparent transparent;
+            bottom: -37px;
+            left: @arrow-left;
+        }
+    }
+}

@@ -1,0 +1,23 @@
+#editor.dialog {
+  bottom: 60px;
+  left: 25px;
+}
+#timeLine.time-line {
+  position: absolute;
+}
+#timeLine ol.frame {
+  height: 60px;
+  list-style: none;
+  overflow: hidden;
+}
+#timeLine ol.frame > li {
+  float: left;
+  height: 60px;
+  width: 10px;
+  border: 1px solid #ccc;
+  border-left-width: 0;
+  box-sizing: border-box;
+}
+#timeLine ol.frame > li:first-child {
+  border-left-width: 1px;
+}
