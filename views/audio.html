@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title><%= title %></title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/audio.css">
+</head>
+<body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+    <div id="music" class="dialog top">
+        <div class="music-app">
+            <h3 id="voiceNameBar">歌曲加载中...</h3>
+            <div class="progress-bg">
+                <div id="musicProgress" class="music-progress"></div>
+            </div>
+            <div id="volumeCon" class="volume-con">
+                <div class="volume-bar"></div>
+                <div style="left:0px;" id="volumeHandle" class="volume-handle"></div>
+            </div>
+            <div class="control-area">
+                <button id="pauseBtn">暂停</button>
+                <button id="nextBtn">下一首</button>
+            </div>
+        </div>
+        <div class="arrow-border"></div>
+        <div class="arrow"></div>
+    </div>
+</body>
+<script type="text/javascript" src="src/keyboard.js"></script>
+<script type="text/javascript" src="src/check.js"></script>
+<script type="text/javascript" src="src/animation.js"></script>
+<script type="text/javascript" src="src/audio.js"></script>
