@@ -259,7 +259,7 @@
             }
         },
         create: function() {
-            var url = 'res/runningGrantSmall.png',
+            var url = 'res/playeranimframe.png',
                 width = 150;
 
             var player = new O.Sprite(url, function(img) {
