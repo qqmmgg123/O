@@ -279,25 +279,39 @@
             return player;
         },
         move: function(speed) {
-            if (this.fowardState || this.backState) {
+            if (this.fowardState || this.backState || this.upState || this.downState) {
                 var inc = speed / 60;
-                if (this.fowardState) inc *= 1;
-                if (this.backState) inc *= -1;
+                var incx, incz;
+                if (this.fowardState) incx = inc;
+                if (this.backState) incx = -inc;
+                if (this.downState) incz = inc;
+                if (this.upState) incz = -inc;
 
-                var new_x = (this.sprite.position.x += inc);
-                var offset = this.sprite.width * .5;
-                this.sprite.position.x = Math.max(Math.min(new_x, 
-                    renderer.view.width - offset), 0 + offset);
+                var new_x, new_z;
+                incx && (new_x = (this.sprite.position.x += incx));
+                incz && (new_z = (this.sprite.position.z += incz));
+
+                if (incx) {
+                    var offset = this.sprite.width * .5;
+                    this.sprite.position.x = Math.max(Math.min(new_x, 
+                        renderer.view.width * .5 - offset), -renderer.view.width * .5 + offset);
+                }
+                if (incz) {
+                    
+                }
             }
             
-            if (this.upState) {
-                var new_x = this.sprite.position.x;
-                if (this.onUp) this.onUp(new_x);
-            }
+            // if (this.upState) {
+                // var new_x = this.sprite.position.x;
+                // if (this.onUp) this.onUp(new_x);
+            // }
 
         },
         up: function() {
             this.upState = true;
+        },
+        down: function() {
+            this.downState = true;
         },
         foward: function() {
             this.fowardState = true;
@@ -306,6 +320,7 @@
             this.sprite.end = 11;
         },
         stand: function() {
+            this.downState = false;
             this.upState = false;
             this.fowardState = false;
             this.backState = false;
@@ -373,8 +388,8 @@
             // center the sprite's anchor point
             building.end = 1;
             //building.inversion = true;
-            building.width = 600;
-            building.height = 656;
+            building.width = 800;
+            building.height = 681;
             building.timer = 150;
             building.position.x = 0;
             building.position.y = -300;
@@ -433,13 +448,10 @@
     }
 
     function switchSence(sence) {
-        console.log('ok...');
         clear();
         sence.create();
     }
 
-    // 店铺
-    var shop = new Building();
 
     // 主视角用户
     var user = new Role({
@@ -457,6 +469,8 @@
             }
         }
     });
+    // 店铺
+    var shop = new Building();
 
     // 聊天对话框
     var chatWin = new ChatWin({
@@ -495,6 +509,10 @@
     });
 
     // 键盘用户动作操作
+    keyboard.addHandle('down_keydown', function() {
+        user.down();
+    });
+
     keyboard.addHandle('up_keydown', function() {
         user.up();
     });
@@ -505,6 +523,10 @@
 
     keyboard.addHandle('left_keydown', function() {
         user.back();
+    });
+    
+    keyboard.addHandle('down_keyup', function() {
+        user.stand();
     });
 
     keyboard.addHandle('up_keyup', function() {

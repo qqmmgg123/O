@@ -104,6 +104,9 @@
         initSpriteConfig: function() {
             var gl = this.engine;
 
+            gl.enable(gl.CULL_FACE);
+            gl.enable(gl.DEPTH_TEST);
+
             var vShader = this.getShader("sprite", "vertex");
             var fShader = this.getShader("sprite", "fragment");
 
@@ -668,7 +671,8 @@
         draw: function(renderer) {
             var gl = o.engine;
             
-            gl.disable(gl.DEPTH_TEST);
+            // gl.disable(gl.DEPTH_TEST);
+            gl.depthFunc(gl.LESS);
             gl.enable(gl.BLEND);
             gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
