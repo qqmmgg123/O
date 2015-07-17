@@ -1,1 +1,1 @@
-# A library for web.
+# A web app.
