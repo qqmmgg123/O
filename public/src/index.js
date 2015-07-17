@@ -6,6 +6,9 @@
     var renderer = new O.Renderer(1440, 768, { transparent: true });
     document.body.appendChild(renderer.view);
 
+    // Disable the right mouse button, drag, and select the text.
+    tools.unselectable();
+
     // 添加舞台
     var stage = new O.Container();
 
@@ -176,10 +179,12 @@
             
             //
             this.editor = document.createElement('div');
+            this.editor.className = "chat-editor";
             this.editor.setAttribute('contenteditable', true);
             this.div.appendChild(this.editor);
 
             this.button = document.createElement('button');
+            this.button.className = "chat-button-send";
             this.button.innerText = "确定";
             this.div.appendChild(this.button);
 
@@ -452,6 +457,8 @@
         sence.create();
     }
 
+    // 店铺
+    // var shop = new Building();
 
     // 主视角用户
     var user = new Role({
@@ -469,11 +476,13 @@
             }
         }
     });
-    // 店铺
-    var shop = new Building();
+
+    // Visitor
+    var Visitor = new Role();
 
     // 聊天对话框
     var chatWin = new ChatWin({
+        height: 150,
         top: 10,
         left: 150,
         direction: 'right',

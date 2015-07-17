@@ -12,6 +12,11 @@
                 newData = newData[keys[k]]
                 return newData;
             })
+        },
+        // Disable the right mouse button, drag, and select the text.
+        unselectable: function() {
+            var callback =  new Function("return false");
+            window.ondragstart = window.oncontextmenu = callback;
         }
     }
 

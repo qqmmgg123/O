@@ -422,7 +422,7 @@
 
             // Draw the geometry.
             gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
             gl.disable(gl.BLEND);
