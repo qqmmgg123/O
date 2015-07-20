@@ -171,9 +171,12 @@
         },
         render: function(container) {
             var gl = o.engine;
-            // gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-            // gl.clearColor(0.0, 0.0, 0.0, 0.0);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            container.children.sort(function(prev, next) {
+                return prev.position.z > next.position.z;
+            });
+
             for (var i=0;i<container.children.length;++i) {
                 var child = container.children[i];
                 if (child.visible)
@@ -668,10 +671,15 @@
                 return (value & (value - 1)) == 0;
             }
         },
+        getDepth: function(cameraPosition, cameraRotation, objectPosition) {
+            var p0 = cameraPosition[0], p1 = cameraPosition[1], p2 = cameraPosition[2],
+            q0 = cameraRotation[0], q1 = cameraRotation[1], q2 = cameraRotation[2], q3 = cameraRotation[3],
+            l0 = objectPosition[0], l1 = objectPosition[1], l2 = objectPosition[2];
+            return 2*(q1*q3 + q0*q2)*(l0 - p0) + 2*(q2*q3 - q0*q1)*(l1 - p1) + (1 - 2*q1*q1 - 2*q2*q2)*(l2 - p2);
+        },
         draw: function(renderer) {
             var gl = o.engine;
             
-            // gl.disable(gl.DEPTH_TEST);
             gl.depthFunc(gl.LESS);
             gl.enable(gl.BLEND);
             gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);

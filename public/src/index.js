@@ -458,7 +458,7 @@
     }
 
     // 店铺
-    // var shop = new Building();
+    var shop = new Building();
 
     // 主视角用户
     var user = new Role({
