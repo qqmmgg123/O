@@ -351,8 +351,9 @@
             stage.addChild(this.chatText);
         },
         updateChatTipsPos: function() {
-            console.log(this.chatText.position.x = this.sprite.position.x);
-            console.log(this.chatText.position.y = this.sprite.position.y); //- this.chatText.height);
+            this.chatText.position.x = this.sprite.position.x + this.chatText.width;
+            this.chatText.position.y = this.sprite.position.y + this.sprite.height + this.chatText.height;
+            this.chatText.position.z = this.sprite.position.z;
         },
         showChatTips: function(text) {
             this.updateChatTipsPos();

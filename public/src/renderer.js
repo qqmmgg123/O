@@ -174,7 +174,8 @@
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
             container.children.sort(function(prev, next) {
-                return prev.position.z > next.position.z;
+                if (prev.position.z > next.position.z) return true;
+                if (prev.position.z == next.position.z) return false;
             });
 
             for (var i=0;i<container.children.length;++i) {
@@ -246,24 +247,32 @@
         _createTextCanvas: function() {
             var textCtx = document.createElement("canvas").getContext("2d");
 
-            this.width = this.text.length * 24;
-            this.height = 24;
+            this.size = 32;
+            this.width = this.text.length * (this.size + 4);
+            this.height = this.size;
             textCtx.canvas.width  = this.width;
             textCtx.canvas.height = this.height;
-            textCtx.font = "20px monospace";
+            textCtx.font = this.size + "px monospace";
             textCtx.textAlign = "center";
             textCtx.textBaseline = "middle";
-            textCtx.fillStyle = "black";
+            textCtx.fillStyle = "red";
             this._textCtx = textCtx;
             this.setText(this.text);
             this._textCanvas = textCtx.canvas;
         },
+        setStyle: function() {
+            
+        },
         setText: function(text) {
-            this.width = text.length * 24;
-            this.height = 24;
+            this.width = text.length * (this.size + 4);
+            this.height = this.size;
             this._textCtx.canvas.width  = this.width;
             this._textCtx.canvas.height = this.height;
             this._textCtx.clearRect(0, 0, this._textCtx.canvas.width, this._textCtx.canvas.height);
+            this._textCtx.font = this.size + "px monospace";
+            this._textCtx.textAlign = "center";
+            this._textCtx.textBaseline = "middle";
+            this._textCtx.fillStyle = "red";
             this._textCtx.fillText(text, this.width / 2, this.height / 2);
         },
         setBuffer: function() {
