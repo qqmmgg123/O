@@ -44,9 +44,12 @@
                 var evt = self.getKeyEvent(key_name, key_type);
                 if (!evt) return;
 
+                // console.log('key event...')
+
                 // 触发键盘事件处理器
                 for (var evi=0;evi<evt.length;++evi) {
                     var ev=evt[evi];
+                    // console.log(ev);
                     ev.callback.call(self, ev);
                 }
             }
@@ -78,9 +81,10 @@
             var events = this.events;
 
             // 查找并触发组合键
+            var firstKey = this.firstKey;
             if (key_type == 'keydown') {
-                for (var k in this.firstKey) {
-                    if (k && k != key_name) {
+                for (var k in firstKey) {
+                    if (firstKey[k] && k != key_name) {
                         handle_type = k + '_' +  key_name;
                     }
                 }

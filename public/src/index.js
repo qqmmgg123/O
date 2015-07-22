@@ -1,4 +1,8 @@
 (function(exports) {
+    /*
+     * Global Configuration
+     */
+
     // 调整浏览器窗口大小
     window.resizeTo(1024, 768);
 
@@ -11,6 +15,12 @@
 
     // 添加舞台
     var stage = new O.Container();
+
+    // Defined window focus
+    STAGE_FOCUS = 0;
+    CHAT_WIN_FOCUS = 1;
+
+    current_focus = STAGE_FOCUS;
 
     // 定义用户序号
     user_num  = 0;
@@ -48,6 +58,7 @@
                 height: this.height,
                 arrow: true,
                 direction: 'top',
+                modal: false,
                 left: 0,
                 top: 0
             }
@@ -88,12 +99,17 @@
                         var cls = opts[o]? opts[o]:this.defaultOpts[o];
                         this.div.className += ' ' + cls;
                         break;
+                     case 'modal':
+                        this.modal = document.createElement('div');
+                        break;
                     default:
                         break;
                 }
             }
         },
         show: function() {
+            current_focus = CHAT_WIN_FOCUS;
+
             var win_width = window.innerWidth;
             var win_height = window.innerHeight;
 
@@ -102,14 +118,23 @@
 
             this.setOpts(this.settings);
             document.body.appendChild(this.div);
+            document.body.appendChild(this.modal);
 
             this.div.className = this.div
                 .className.replace(' none','');
+            
+            this.modal.className = "modal fade-out";
+            var oheight = this.modal.offsetHeight;
+            this.modal.className = "modal fade-in";
 
             this.visible = true;
         },
         close: function() {
+            current_focus = STAGE_FOCUS;
+
             document.body.removeChild(this.div);
+            document.body.removeChild(this.modal);
+            // this.modal = this.div = null;
             this.visible = false;
         }
     });
@@ -458,10 +483,10 @@
         sence.create();
     }
 
-    // 店铺
+    // Add shop
     var shop = new Building();
 
-    // 主视角用户
+    // Add user
     var user = new Role({
         isMainView: true,
         onUp: function(px) {
@@ -478,22 +503,23 @@
         }
     });
 
-    // Visitor
-    var Visitor = new Role();
+    // Add visitor
+    var visitor = new Role();
 
-    // 聊天对话框
+    // Chat dialog
     var chatWin = new ChatWin({
-        height: 150,
+        height: 120,
         top: 10,
         left: 150,
         direction: 'right',
+        modal: true,
         onSendMessage: function(messages) {
             user.showChatTips(messages);
         }
     });
 
     // 商品展示窗口实例
-    var productWin = new ProductWin({
+    /*var productWin = new ProductWin({
         width: 960,
         height: 'auto', 
         top: 50,
@@ -504,7 +530,7 @@
             imgurl: 'res/TB1OWSwIXXXXXccXFXXSutbFXXX.jpg',
             price: 30,
         }]
-    });
+    });*/
 
     // 键盘操作聊天窗口
     keyboard.addHandle('ctrl + b', function() {
@@ -513,42 +539,42 @@
     });
     
     // 键盘操作产品窗口
-    keyboard.addHandle('ctrl + q', function() {
+    /*keyboard.addHandle('ctrl + q', function() {
         if (!productWin.visible) productWin.show();
         else productWin.close();
-    });
+    });*/
 
     // 键盘用户动作操作
     keyboard.addHandle('down_keydown', function() {
-        user.down();
+        if (current_focus == STAGE_FOCUS) user.down();
     });
 
     keyboard.addHandle('up_keydown', function() {
-        user.up();
+        if (current_focus == STAGE_FOCUS) user.up();
     });
 
     keyboard.addHandle('right_keydown', function() {
-        user.foward();
+        if (current_focus == STAGE_FOCUS) user.foward();
     });
 
     keyboard.addHandle('left_keydown', function() {
-        user.back();
+        if (current_focus == STAGE_FOCUS) user.back();
     });
     
     keyboard.addHandle('down_keyup', function() {
-        user.stand();
+        if (current_focus == STAGE_FOCUS) user.stand();
     });
 
     keyboard.addHandle('up_keyup', function() {
-        user.stand();
+        if (current_focus == STAGE_FOCUS) user.stand();
     });
 
     keyboard.addHandle('right_keyup', function() {
-        user.stand();
+        if (current_focus == STAGE_FOCUS) user.stand();
     });
 
     keyboard.addHandle('left_keyup', function() {
-        user.stand();
+         if (current_focus == STAGE_FOCUS) user.stand();
     });
 
     /////////////////////////////////////////////////////////////////////////

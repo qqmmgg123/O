@@ -247,12 +247,12 @@
         _createTextCanvas: function() {
             var textCtx = document.createElement("canvas").getContext("2d");
 
-            this.size = 32;
+            this.size = 14;
             this.width = this.text.length * (this.size + 4);
             this.height = this.size;
             textCtx.canvas.width  = this.width;
             textCtx.canvas.height = this.height;
-            textCtx.font = this.size + "px monospace";
+            textCtx.font = this.size + "px Microsoft YaHei";
             textCtx.textAlign = "center";
             textCtx.textBaseline = "middle";
             textCtx.fillStyle = "red";
@@ -261,7 +261,7 @@
             this._textCanvas = textCtx.canvas;
         },
         setStyle: function() {
-            
+            // TODO
         },
         setText: function(text) {
             this.width = text.length * (this.size + 4);
@@ -269,7 +269,7 @@
             this._textCtx.canvas.width  = this.width;
             this._textCtx.canvas.height = this.height;
             this._textCtx.clearRect(0, 0, this._textCtx.canvas.width, this._textCtx.canvas.height);
-            this._textCtx.font = this.size + "px monospace";
+            this._textCtx.font = this.size + "px Microsoft YaHei";
             this._textCtx.textAlign = "center";
             this._textCtx.textBaseline = "middle";
             this._textCtx.fillStyle = "red";
@@ -653,11 +653,6 @@
         bindTexture: function() {
             var gl = o.engine;
             
-            // gl.enable(gl.BLEND);
-
-            // gl.blendEquation(gl.FUNC_ADD);
-            // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-
             // Now that the image has loaded make copy it to the texture.
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.texture);
