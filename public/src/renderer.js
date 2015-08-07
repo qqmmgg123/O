@@ -8,10 +8,13 @@
     if (!check.checkChrome()) return;
 
     var O = function() {
-        this.debug = false;
+        this.debug = true;
         this.author = "minggangqiu";
         this.engine = null;
         this.shader = {};
+        
+        // const
+        this.RECT = 0;
     }
 
     O.prototype = {
@@ -41,10 +44,12 @@
 
             var fsShaderContext = "precision mediump float;\
                                  varying vec2 v_texcoord;\
+                                 uniform vec4 u_color;\
                                  uniform sampler2D u_texture;\
+                                 uniform float u_alpha;\
                                  void main() {\
-                                 vec4 textureColor = texture2D(u_texture, vec2(v_texcoord.s, v_texcoord.t));\
-                                 gl_FragColor = vec4(textureColor.rgb, textureColor.a);\
+                                 vec4 textureColor = texture2D(u_texture, vec2(v_texcoord.s, v_texcoord.t)) * u_color;\
+                                 gl_FragColor = vec4(textureColor.rgb, textureColor.a * u_alpha);\
                                  }";
 
             fsShaderScript.innerHTML = fsShaderContext;
@@ -104,8 +109,8 @@
         initSpriteConfig: function() {
             var gl = this.engine;
 
-            gl.enable(gl.CULL_FACE);
-            gl.enable(gl.DEPTH_TEST);
+            //gl.enable(gl.CULL_FACE);
+            //gl.enable(gl.DEPTH_TEST);
 
             var vShader = this.getShader("sprite", "vertex");
             var fShader = this.getShader("sprite", "fragment");
@@ -127,6 +132,8 @@
             this.positionLocation = gl.getAttribLocation(program, "a_position");
             this.texcoordLocation = gl.getAttribLocation(program, "a_texcoord");
             this.pointLocation = gl.getUniformLocation(program, "u_point");
+            this.alphaLocation = gl.getUniformLocation(program, "u_alpha");
+            this.colorLocation = gl.getUniformLocation(program, "u_color");
 
             // lookup uniforms
             this.matrixLocation = gl.getUniformLocation(program, "u_matrix");
@@ -186,21 +193,108 @@
         }
     };
 
-    o.DisplayObject = Class.extend({
+    o.BasicObject = Class.extend({
         init: function() {
+            this.type = "BasicObject";
+            this.hover = false;
+        },
+        addHandle: function(type) {
+            // TODO
+            switch(type) {
+                case 'hover':
+                    this.hover = true;
+                    break;
+                default:
+                    break;
+            }
+        },
+        removeHandle: function() {
+            // TODO
+        }
+    });
+
+    o.DisplayObject = o.BasicObject.extend({
+        init: function() {
+            this._super();
+            this.type = "DisplayObject";
             this.position = {};
+            this.rotate = {};
+            this.scale = {};
             this.position.x = 0;
             this.position.y = 0;
             this.position.z = 0;
+            this.rotate.x = 0;
+            this.rotate.y = 0;
+            this.rotate.z = 0;
+            this.scale.x = 1;
+            this.scale.y = 1;
+            this.scale.z = 1;
+            this.alpha = 1.0;
+            this.color = [1.0,1.0,1.0,1.0];
             this.visible = true;
             
             this.private = {};
         }
     });
 
+    o.Rand = o.BasicObject.extend({
+        init: function(type, array) {
+            this._super();
+            this.type = "Rand";
+            switch(type) {
+                case o.RECT:
+                    this.randType = type;
+                    this.left = array[0];
+                    this.right = array[1];
+                    this.top = array[2];
+                    this.bottom = array[3];
+                    break;
+                default:
+                    break;
+            }
+        },
+        offsetX: function(value) {
+            if (this.randType == o.RECT) {
+                this.left += value;
+                this.right += value;
+            }
+        },
+        offsetZ: function(value) {
+            if (this.randType == o.RECT) {
+                this.top += value;
+                this.bottom += value;
+            }
+        },
+        hitTest: function(rand) {
+            if (this.randType == o.RECT) {
+                var minx = Math.max(this.left, rand.left)
+                , miny = Math.max(this.top, rand.top)
+                , maxx = Math.min(this.right, rand.right)
+                , maxy = Math.min(this.bottom, rand.bottom);
+                
+                if ( minx>maxx ) return 0;
+                if ( miny>maxy ) return 0;
+                return (maxx-minx)*(maxy-miny);
+            }
+
+            return false;
+        },
+        isInRand: function(rand) {
+            if (this.randType == o.RECT) {
+                return (this.left >= rand.left &&
+                       this.right <= rand.right && 
+                       this.top >= rand.top &&
+                       this.bottom <= rand.bottom)
+            }
+
+            return false;
+        }
+    })
+
     o.Container = o.DisplayObject.extend({
         init: function() {
             this._super();
+            this.type = "Container";
             this.children = [];
             this.levelNum = 0;
         },
@@ -232,7 +326,16 @@
             }
         },
         removeChild: function(child) {
-            //this.
+            var index = this.children.indexOf(child);
+            
+            if (index != -1) {
+                var r = this.children.splice(index, 1);
+                console.log(index, r);
+            }
+        },
+        removeAllChild: function() {
+            if (this.children.length > 0)
+                this.children.splice(0);
         }
     });
 
@@ -240,40 +343,40 @@
         init: function(text, opts) {
             this._super();
 
+            this.type = "Text";
             this.text = text;
+
+            this.visible = false;
 
             this._createTextCanvas();
         },
         _createTextCanvas: function() {
             var textCtx = document.createElement("canvas").getContext("2d");
 
-            this.size = 14;
-            this.width = this.text.length * (this.size + 4);
-            this.height = this.size;
-            textCtx.canvas.width  = this.width;
-            textCtx.canvas.height = this.height;
-            textCtx.font = this.size + "px Microsoft YaHei";
-            textCtx.textAlign = "center";
-            textCtx.textBaseline = "middle";
-            textCtx.fillStyle = "red";
             this._textCtx = textCtx;
-            this.setText(this.text);
             this._textCanvas = textCtx.canvas;
         },
         setStyle: function() {
             // TODO
         },
-        setText: function(text) {
-            this.width = text.length * (this.size + 4);
+        setText: function() {
+            var ctx = this._textCtx;
+            this.size = 14;
+            this.width = text.length * this.size;
             this.height = this.size;
-            this._textCtx.canvas.width  = this.width;
-            this._textCtx.canvas.height = this.height;
-            this._textCtx.clearRect(0, 0, this._textCtx.canvas.width, this._textCtx.canvas.height);
-            this._textCtx.font = this.size + "px Microsoft YaHei";
-            this._textCtx.textAlign = "center";
-            this._textCtx.textBaseline = "middle";
-            this._textCtx.fillStyle = "red";
-            this._textCtx.fillText(text, this.width / 2, this.height / 2);
+            ctx.canvas.width  = this.width;
+            ctx.canvas.height = this.height;
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.font = this.size + "px Microsoft YaHei";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "red";
+            ctx.fillText(text, 0, this.height / 2);
+        },
+        showText: function(text) {
+            this.text = text;
+            this.setText();
+            this.visible = true;
         },
         setBuffer: function() {
             var gl = o.engine;
@@ -400,13 +503,16 @@
             this.setBuffer();
             this.bindTexture();
 
+            gl.uniform1f(o.alphaLocation, this.alpha);
+            gl.uniform4fv(o.colorLocation, new Float32Array(this.color));
+
             // Compute the projection matrix
-            var fieldOfViewRadians = degToRad(60);
+            var fieldOfViewRadians = tools.degToRad(60);
             var aspect = renderer.view.clientWidth / renderer.view.clientHeight;
             var projectionMatrix =
                 makePerspective(fieldOfViewRadians, aspect, 1, 2000);
 
-            var cameraZPosition = (renderer.view.clientHeight/2) / Math.tan(degToRad(30));
+            var cameraZPosition = (renderer.view.clientHeight/2) / Math.tan(tools.degToRad(30));
             var cameraPosition = [0, 0, cameraZPosition];
             var up = [0, 1, 0];
             var target = [0, 0, 0];
@@ -419,8 +525,8 @@
 
             var translationMatrix = makeTranslation(this.position.x,
                 this.position.y, this.position.z);
-            var xRotationMatrix = makeXRotation(degToRad(0));
-            var yRotationMatrix = makeYRotation(degToRad(0));
+            var xRotationMatrix = makeXRotation(tools.degToRad(0));
+            var yRotationMatrix = makeYRotation(tools.degToRad(0));
 
             // Multiply the matrices.
             var matrix = yRotationMatrix;
@@ -438,21 +544,113 @@
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
             gl.disable(gl.BLEND);
+        }
+    });
 
-            function radToDeg(r) {
-                return r * 180 / Math.PI;
+    o.BorderText = o.Text.extend({
+        init: function(text, opt) { 
+            this._super(text, opt);
+
+            this.visible = false;
+            this.imgloaded = false;
+
+            this.loadBorder();
+
+        },
+        loadBorder: function() {
+            var self = this;
+            this.border = new Image();
+            this.border.src = 'res/border.png';
+            console.log(this.border);
+
+            this.border.onload = function() {
+                self.setText();
+                self.imgloaded = true;
+            }
+        },
+        setText: function() {
+            var ctx = this._textCtx;
+            this.size = 14;
+            this.width = 200;
+            this.height = 144;
+            ctx.canvas.width  = this.width;
+            ctx.canvas.height = this.height;
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.drawImage(this.border, 0, 0);
+            ctx.font = this.size + "px Microsoft YaHei";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "black";
+            ctx.fillText(this.text, 26, 26);
+        },
+        showText: function(text) {
+            this.text = text;
+            if (this.imgloaded) {
+                this.setText();
+            }
+            this.visible = true;
+        },
+        draw: function(renderer) {
+            var gl = o.engine;
+
+            gl.disable(gl.DEPTH_TEST);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+           
+            if (this.imgloaded) {
+                this.setBuffer();
+                this.bindTexture();
             }
 
-            function degToRad(d) {
-                return d * Math.PI / 180;
-            }
+            gl.uniform1f(o.alphaLocation, this.alpha);
+            gl.uniform4fv(o.colorLocation, new Float32Array(this.color));
+
+            // Compute the projection matrix
+            var fieldOfViewRadians = tools.degToRad(60);
+            var aspect = renderer.view.clientWidth / renderer.view.clientHeight;
+            var projectionMatrix =
+                makePerspective(fieldOfViewRadians, aspect, 1, 2000);
+
+            var cameraZPosition = (renderer.view.clientHeight/2) / Math.tan(tools.degToRad(30));
+            var cameraPosition = [0, 0, cameraZPosition];
+            var up = [0, 1, 0];
+            var target = [0, 0, 0];
+
+            // Compute the camera's matrix using look at.
+            var cameraMatrix = makeLookAt(cameraPosition, target, up);
+
+            // Make a view matrix from the camera matrix.
+            var viewMatrix = makeInverse(cameraMatrix);
+
+            var translationMatrix = makeTranslation(this.position.x,
+                this.position.y, this.position.z);
+            var xRotationMatrix = makeXRotation(tools.degToRad(0));
+            var yRotationMatrix = makeYRotation(tools.degToRad(0));
+
+            // Multiply the matrices.
+            var matrix = yRotationMatrix;
+            matrix = matrixMultiply(matrix, xRotationMatrix);
+            matrix = matrixMultiply(matrix, translationMatrix);
+            matrix = matrixMultiply(matrix, viewMatrix);
+            matrix = matrixMultiply(matrix, projectionMatrix);
+
+            // Set the matrix.
+            gl.uniformMatrix4fv(o.matrixLocation, false, matrix);
+
+            // Draw the geometry.
+            gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+            
+            gl.disable(gl.BLEND);
+
         }
     });
 
     o.Sprite = o.DisplayObject.extend({
         init: function(url, callback) {
             this._super();
-            this.childType = "Sprite";
+            this.type = "Sprite";
 
             this.point = {};
             this.point.x = 0;
@@ -652,7 +850,7 @@
         },
         bindTexture: function() {
             var gl = o.engine;
-            
+
             // Now that the image has loaded make copy it to the texture.
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -695,13 +893,16 @@
                 this.bindTexture();
             }
 
+            gl.uniform1f(o.alphaLocation, this.alpha);
+            gl.uniform4fv(o.colorLocation, new Float32Array(this.color));
+
             // Compute the projection matrix
-            var fieldOfViewRadians = degToRad(60);
+            var fieldOfViewRadians = tools.degToRad(60);
             var aspect = renderer.view.clientWidth / renderer.view.clientHeight;
             var projectionMatrix =
                 makePerspective(fieldOfViewRadians, aspect, 1, 2000);
             
-            var cameraZPosition = (renderer.view.clientHeight/2) / Math.tan(degToRad(30));
+            var cameraZPosition = (renderer.view.clientHeight/2) / Math.tan(tools.degToRad(30));
             var cameraPosition = [0, 0, cameraZPosition];
             var up = [0, 1, 0];
             var target = [0, 0, 0];
@@ -714,11 +915,16 @@
 
             var translationMatrix = makeTranslation(this.position.x,
                 this.position.y, this.position.z);
-            var xRotationMatrix = makeXRotation(degToRad(0));
-            var yRotationMatrix = makeYRotation(degToRad(0));
+            var xRotationMatrix = makeXRotation(tools.degToRad(this.rotate.x));
+            var yRotationMatrix = makeYRotation(tools.degToRad(this.rotate.y));
+            var zRotationMatrix = makeZRotation(tools.degToRad(this.rotate.z));
+            var scaleMatrix = makeScale(this.scale.x,
+                                        this.scale.y,
+                                        this.scale.z);
 
             // Multiply the matrices.
-            var matrix = yRotationMatrix;
+            var matrix = matrixMultiply(scaleMatrix, zRotationMatrix);
+            matrix = matrixMultiply(matrix, yRotationMatrix);
             matrix = matrixMultiply(matrix, xRotationMatrix);
             matrix = matrixMultiply(matrix, translationMatrix);
             matrix = matrixMultiply(matrix, viewMatrix);
@@ -733,14 +939,6 @@
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
             gl.disable(gl.BLEND);
-
-            function radToDeg(r) {
-                return r * 180 / Math.PI;
-            }
-
-            function degToRad(d) {
-                return d * Math.PI / 180;
-            }
         }
     });
 

@@ -17,6 +17,13 @@
         unselectable: function() {
             var callback =  new Function("return false");
             window.ondragstart = window.oncontextmenu = callback;
+        },
+        // Math
+        fradToDeg: function(r) {
+            return r * 180 / Math.PI;
+        },
+        degToRad: function(d) {
+            return d * Math.PI / 180;
         }
     }
 

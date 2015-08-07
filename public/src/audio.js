@@ -136,4 +136,32 @@
         // 注册动画
         animation.registerAnimation();
     }
+
+    // Webcam recording
+    navigator.getMedia = (
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia
+    );
+
+    navigator.getMedia(
+        // contraints
+        {
+            video: true,
+            audio: true
+        },
+
+        // successCallback
+        function(localMediaStream) {
+            var video = document.querySelector('video');
+            video.src = window.URL.createObjectURL(localMediaStream);
+            video.onloadedmetadata = function() {
+                
+            }
+        },
+
+        // errCallback
+        function() {
+            console.log("The following error occurd:" + err);
+        }
+    );
 })();
