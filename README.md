@@ -1,3 +1,5 @@
+
+A webgl-based h5 simple 3D and 2D 2.5D rendering engine
 H52.5D三维游戏渲染器
 
 ### 目标
